@@ -1,11 +1,12 @@
 using WestonAcCrimeConundrum.Services;
+using WestonAcCrimeConundrum.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// builder.Services.AddTransient<ICrimeRestService, CrimeRestService>();
+builder.Services.AddTransient<ICrimeRestService, CrimeRestService>();
 
 var app = builder.Build();
 
