@@ -1,12 +1,19 @@
-using WestonAcCrimeConundrum.Services;
+using Refit;
 using WestonAcCrimeConundrum.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Once we have the builder, we can grab config items:
+var baseUrl = builder.Configuration["CrimeBaseUri"];
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddTransient<ICrimeRestService, CrimeRestService>();
+// As we are using Refit, we can bind the HttpClient to the interface to build our rest calls
+builder.Services.AddRefitClient<ICrimeRestService>().ConfigureHttpClient(c => 
+{
+    c.BaseAddress = new Uri(baseUrl); 
+});
 
 var app = builder.Build();
 
