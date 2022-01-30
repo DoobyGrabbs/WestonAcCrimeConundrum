@@ -16,11 +16,18 @@ namespace WestonAcCrimeConundrum.Models.ViewModels
         public float Longitude { get; set; }
 
         [Required]
-        [Display(Name = "Month/Year")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateOnly MonthYear { get; set; }
+        [Display(Name = "Month")]
+        [Range(1, 12, ErrorMessage = "Range for {0} must be between {1} and {2}.")]
+        public int Month { get; set; } = DateTime.Today.Month;
 
-        public List<CrimeResponseByCategory>? CrimeResponseByCategories { get; set; }
+        [Required]
+        [Display(Name = "Year")]
+        [Range(1900, 2099, ErrorMessage = "Range for {0} must be between {1} and {2}.")]
+        public int Year { get; set; } = DateTime.Today.Year;
+
+        public string MonthYear { get; set; } = String.Empty;
+
+        public List<CrimeResponseByCategory> CrimeResponseByCategories { get; set; } = new List<CrimeResponseByCategory>(); 
     }
 
     public class CrimeResponseByCategory

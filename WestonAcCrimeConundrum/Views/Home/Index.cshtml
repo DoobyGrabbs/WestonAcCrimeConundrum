@@ -1,20 +1,21 @@
 ﻿@model WestonAcCrimeConundrum.Models.ViewModels.CrimeClient
 
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Crime Data Wrapper";
 }
 
-<h1>View</h1>
+<h1 class="text-primary">Search Crime Data</h1>
 
-<h4>CrimeClient</h4>
+<h4 class="text-secondary">Find out what's been going on in your neighbourhood:</h4>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Latitude" class="control-label"></label>
-                <input asp-for="Latitude" class="form-control" />
+                <input asp-for="Latitude" class="form-control" style="col-md-4" />
                 <span asp-validation-for="Latitude" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -23,38 +24,53 @@
                 <span asp-validation-for="Longitude" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MonthYear" class="control-label"></label>
-                <input asp-for="MonthYear" class="form-control" />
-                <span asp-validation-for="MonthYear" class="text-danger"></span>
+                <label asp-for="Month" class="control-label"></label>
+                <input asp-for="Month" class="form-control" maxlength="4" max="12" min="1" style="width:200px;" />
+                <span asp-validation-for="Month" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label asp-for="Year" class="control-label"></label>
+                <input asp-for="Year" class="form-control" maxlength="4" min="1900" max="@DateTime.Today.Year" style="width:200px;" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-4">
+                <input type="submit" value="Get Crimes" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
+    <div class="col-md-1">
+    </div>
 
-
-@if (Model != null)
-{
-    <div class="row">
-        <div class="col-md-4">
-            @foreach (var crimeCategory in Model.CrimeResponseByCategories)
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Crime Results</div>
+            @if (Model != null && Model.CrimeResponseByCategories.Any())
             {
-                <div class="row">
-                    <div class="col-md-4">
-                        @crimeCategory.Category
-                    </div>
-                    <div class="col-md-4">
-                        @crimeCategory.NumCrimes
-                    </div>
+                <ul class="list-group list-group-flush">
+                @foreach (var crimeCategory in Model.CrimeResponseByCategories)
+                {
+                    <li class="list-group-item">
+                        <span class="badge bg-primary">@crimeCategory.NumCrimes</span> @crimeCategory.Category
+                    </li>
+                }
+                </ul>
+            }
+            else
+            {
+                <div class="card-body">
+                    <p class="card-text">Your search criteria return no results.</p>
                 </div>
             }
         </div>
     </div>
-}
-
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+    $(function () {
+        // was going to use jQuery.UI.datepicker here but it seemed overkill
+    });
+    </script>
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using System.Collections.Generic;
 using System.Diagnostics;
 
 using WestonAcCrimeConundrum.Models;
@@ -22,6 +21,12 @@ namespace WestonAcCrimeConundrum.Controllers
 
         public IActionResult Index()
         {
+            CrimeClient crimeClient = new();
+            return View(crimeClient);
+        }
+
+        public IActionResult About()
+        {
             return View();
         }
 
@@ -31,34 +36,31 @@ namespace WestonAcCrimeConundrum.Controllers
             if (!ModelState.IsValid) 
                 return View("Index");
 
-            var lat = "51.3509";
-            var lng = "-2.9815";
-            crimeClient.MonthYear = new DateOnly(2021, 12, 1);
+            crimeClient.MonthYear = $"{crimeClient.Year}-{crimeClient.Month}";
 
-            var crimes = await _crime.GetCrimeDataByLatLngDateAsync(
-                crimeClient.Latitude.ToString(), 
-                crimeClient.Longitude.ToString(), 
-                crimeClient.MonthYear.ToString("yyyy-MM"));
+            try
+            {
+                // Call the rest API to get the raw data
+                var crimes = await _crime.GetCrimeDataByLatLngDateAsync(
+                    crimeClient.Latitude.ToString(),
+                    crimeClient.Longitude.ToString(),
+                    crimeClient.MonthYear);
 
-            // Here we need to query the results and asign to a CrimeResponses object
-            // Sum, GroupBy category => crimeClient
-            var temp = crimes
-                .GroupBy(l => l.category)
-                .Select(cl => new
-                {
-                    Category = cl.First().category,
-                    Quantity = cl.Count()
-                }).ToList();
+                // GroupBy & Sum the results for our summary data and assign to the crimeClient object
+                crimeClient.CrimeResponseByCategories = crimes
+                    .GroupBy(l => l.category)
+                    .Select(cl => new CrimeResponseByCategory
+                    {
+                        Category = cl.First().category,
+                        NumCrimes = cl.Count()
+                    })
+                    .OrderByDescending(a => a.NumCrimes)
+                    .ToList();
+            }
+            catch (Refit.ApiException)
+            {
 
-            // crimeClient.CrimeResponseByCategories = new List<CrimeResponseByCategory>();
-
-            crimeClient.CrimeResponseByCategories = crimes
-                .GroupBy(l => l.category)
-                .Select(cl => new CrimeResponseByCategory
-                {
-                    Category = cl.First().category, 
-                    NumCrimes = cl.Count()
-                }).ToList();
+            }
 
             return View("Index", crimeClient);
         }
